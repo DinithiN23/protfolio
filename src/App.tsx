@@ -18,7 +18,6 @@ import {
   Mail,
   Linkedin,
   Github,
-  Edit3,
   User,
   Coffee,
   Monitor,
@@ -34,6 +33,19 @@ const VerifiedIcon = UserCheck;
 const EmailIcon = AtSign;
 const LocationIcon = MapPin;
 const ArrowRightIcon = ArrowRight;
+
+const MediumIcon = ({ size = 24, ...props }: { size?: number } & React.SVGProps<SVGSVGElement>) => (
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill="currentColor"
+    xmlns="http://www.w3.org/2000/svg"
+    {...props}
+  >
+    <path d="M13.54 12a6.8 6.8 0 01-6.77 6.82A6.82 6.82 0 1113.54 12zM20.96 12c0 3.54-1.51 6.41-3.38 6.41s-3.38-2.87-3.38-6.41 1.51-6.41 3.38-6.41 3.38 2.87 3.38 6.41zM24 12c0 3.17-.53 5.75-1.19 5.75s-1.19-2.58-1.19-5.75.53-5.75 1.19-5.75S24 8.83 24 12z" />
+  </svg>
+);
 
 
 
@@ -88,11 +100,11 @@ function BugHunter() {
       // Pick a random edge or spot
       const newX = Math.random() * 90 + 5;
       const newY = Math.random() * 90 + 5;
-      
+
       const dx = newX - pos.x;
       const dy = newY - pos.y;
       const angle = Math.atan2(dy, dx) * (180 / Math.PI);
-      
+
       setPos({ x: newX, y: newY, rotate: angle + 90 });
       setVisible(true);
 
@@ -114,13 +126,13 @@ function BugHunter() {
     <motion.div
       className="fixed z-[100] pointer-events-none text-red-500/20"
       initial={{ opacity: 0 }}
-      animate={{ 
-        left: `${pos.x}%`, 
-        top: `${pos.y}%`, 
+      animate={{
+        left: `${pos.x}%`,
+        top: `${pos.y}%`,
         rotate: pos.rotate,
-        opacity: visible ? 1 : 0 
+        opacity: visible ? 1 : 0
       }}
-      transition={{ 
+      transition={{
         left: { duration: 10, ease: "linear" },
         top: { duration: 10, ease: "linear" },
         rotate: { duration: 1 },
@@ -243,7 +255,7 @@ export default function App() {
 
     window.addEventListener("scroll", handleScroll, { passive: true });
     // Use timeout to ensure elements are measured after layout settled
-    setTimeout(handleScroll, 100); 
+    setTimeout(handleScroll, 100);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
@@ -288,11 +300,22 @@ export default function App() {
           transition={{ delay: 0.3 }}
           className="hidden md:flex items-center justify-center w-full py-6 shrink-0"
         >
-          <img
-            src="/logo/dn-logo.svg"
-            alt="DN Logo"
-            className="w-14 h-auto object-contain hover:scale-110 transition-transform duration-300"
-          />
+          <a
+            href="#home"
+            onClick={(e) => {
+              e.preventDefault();
+              window.scrollTo({ top: 0, behavior: "smooth" });
+              setActiveNavLink("home");
+              window.history.pushState(null, "", "#home");
+            }}
+            className="cursor-pointer"
+          >
+            <img
+              src="/logo/dn-logo.svg"
+              alt="DN Logo"
+              className="w-14 h-auto object-contain hover:scale-110 transition-transform duration-300"
+            />
+          </a>
         </motion.div>
 
         {/* Divider (desktop only) */}
@@ -351,17 +374,28 @@ export default function App() {
         </div>
       </motion.nav>
 
-      {/* Main Content Wrapper */}
-      <main className="w-full md:ml-[88px] relative overflow-x-hidden">
-        {/* New Hero Section (Home) */}
-        <header ref={heroRef} className="min-h-screen flex flex-col justify-center px-6 md:px-12 bg-surface overflow-hidden relative" id="home">
+      {/* Main Content Wrapper - Removed w-full to prevent overflow with margin-left */}
+      <main className="md:ml-[88px] relative overflow-x-clip min-h-svh">
+        {/* New Hero Section (Home) - Using min-h-svh for better Safari height handling */}
+        <header ref={heroRef} className="min-h-svh flex flex-col justify-center px-6 md:px-12 bg-surface overflow-hidden relative" id="home">
           {/* Mobile Logo Top Bar */}
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             className="md:hidden absolute top-0 left-0 w-full p-6 z-20 flex justify-between items-center"
           >
-            <img src="/logo/dn-logo.svg" alt="DN Logo" className="w-16 h-auto" />
+            <a
+              href="#home"
+              onClick={(e) => {
+                e.preventDefault();
+                window.scrollTo({ top: 0, behavior: "smooth" });
+                setActiveNavLink("home");
+                window.history.pushState(null, "", "#home");
+              }}
+              className="cursor-pointer"
+            >
+              <img src="/logo/dn-logo.svg" alt="DN Logo" className="w-16 h-auto" />
+            </a>
           </motion.div>
 
           <FloatingParticles />
@@ -844,19 +878,18 @@ export default function App() {
                   transition={{ delay: 0.6 }}
                   whileHover={status === 'sending' ? {} : { scale: 1.02 }}
                   whileTap={status === 'sending' ? {} : { scale: 0.98 }}
-                  className={`w-full py-4 font-bold text-sm tracking-[0.2em] uppercase rounded magnetic-btn relative overflow-hidden group transition-all duration-300 ${
-                    status === 'sending' ? 'bg-outline-variant text-surface cursor-wait' :
-                    status === 'success' ? 'bg-green-600 text-white' :
-                    status === 'error' ? 'bg-error text-error-container' : 
-                    'clinical-gradient text-on-primary'
-                  }`}
+                  className={`w-full py-4 font-bold text-sm tracking-[0.2em] uppercase rounded magnetic-btn relative overflow-hidden group transition-all duration-300 ${status === 'sending' ? 'bg-outline-variant text-surface cursor-wait' :
+                      status === 'success' ? 'bg-green-600 text-white' :
+                        status === 'error' ? 'bg-error text-error-container' :
+                          'clinical-gradient text-on-primary'
+                    }`}
                   id="contact-submit-btn"
                 >
                   <span className="relative z-10">
-                    {status === 'sending' ? 'TRANSMITTING...' : 
-                     status === 'success' ? 'HANDSHAKE SUCCESS' : 
-                     status === 'error' ? 'HANDSHAKE ERROR' : 
-                     'DEPLOY HANDSHAKE'}
+                    {status === 'sending' ? 'TRANSMITTING...' :
+                      status === 'success' ? 'HANDSHAKE SUCCESS' :
+                        status === 'error' ? 'HANDSHAKE ERROR' :
+                          'DEPLOY HANDSHAKE'}
                   </span>
                   {status === 'idle' && (
                     <span className="absolute inset-0 bg-white/10 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700 skew-x-12" />
@@ -880,14 +913,13 @@ export default function App() {
               <img src="/logo/dn-logo.svg" alt="DN Logo" className="w-20 h-auto object-contain" />
             </div>
             <p className="text-sm tracking-wide text-on-surface-variant/80 font-medium whitespace-nowrap">
-              © 2020 - 2026 Dinith Nimesha. All rights reserved.
+              © 2022 - 2026 Dinith Nimesha. All rights reserved.
             </p>
             <div className="flex justify-center gap-10">
               {[
                 { label: "LinkedIn", href: "https://www.linkedin.com/in/dinithi-nimesha-324a0819b/", icon: Linkedin },
-                { label: "Medium", href: "https://medium.com/@dinithidnnimesha", icon: Edit3 },
+                { label: "Medium", href: "https://medium.com/@dinithidnnimesha", icon: MediumIcon },
                 { label: "GitHub", href: "https://github.com/DinithiN23", icon: Github },
-                { label: "Email", href: "#contact", icon: Mail },
               ].map((link, idx) => {
                 const Icon = link.icon;
                 return (

@@ -51,12 +51,18 @@
 @layer base {
   body {
     @apply bg-background text-on-surface font-body antialiased selection:bg-primary/20;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    width: 100%;
+    position: relative;
   }
   
   /* Smooth scroll */
   html {
     scroll-behavior: smooth;
     overflow-x: hidden;
+    height: 100%;
+    -webkit-tap-highlight-color: transparent;
   }
 }
 

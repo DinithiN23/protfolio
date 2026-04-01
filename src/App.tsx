@@ -668,6 +668,13 @@ export default function App() {
             <div className="space-y-8">
               {[
                 {
+                  date: "APR 01, 2026",
+                  title: "The Evolution of the Quality Architect: What a QA Engineer Actually Does in 2026",
+                  desc: "The transition from QA Engineer to Quality Architect marks a pivotal shift in software excellence. Explore how we're redefining quality as a core architectural pillar in 2026.",
+                  img: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&q=80&w=800",
+                  link: "https://medium.com/@dinithidnnimesha/the-evolution-of-the-quality-architect-what-a-qa-engineer-actually-does-in-2026-c3f88fbed936"
+                },
+                {
                   date: "DEC 21, 2025",
                   title: "Quality Assurance in the Age of AI: From Testing Software to Engineering Confidence",
                   desc: "The shift from execution to orchestration is the most significant change in our industry. We are no longer bug-hunters; we are resilience architects.",

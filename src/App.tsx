@@ -24,7 +24,8 @@ import {
   Monitor,
   Cpu,
   Zap,
-  Sparkles
+  Sparkles,
+  Bug
 } from "lucide-react";
 import React, { useState, useEffect, useRef } from "react";
 
@@ -74,6 +75,60 @@ function FloatingParticles() {
         />
       ))}
     </>
+  );
+}
+
+// ——— Bug Hunter Easter Egg ———
+function BugHunter() {
+  const [pos, setPos] = useState({ x: -5, y: 20, rotate: 90 });
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    const moveBug = () => {
+      // Pick a random edge or spot
+      const newX = Math.random() * 90 + 5;
+      const newY = Math.random() * 90 + 5;
+      
+      const dx = newX - pos.x;
+      const dy = newY - pos.y;
+      const angle = Math.atan2(dy, dx) * (180 / Math.PI);
+      
+      setPos({ x: newX, y: newY, rotate: angle + 90 });
+      setVisible(true);
+
+      // Hide occasionally to keep it stealthy
+      if (Math.random() > 0.6) {
+        setTimeout(() => setVisible(false), 4000);
+      }
+    };
+
+    const interval = setInterval(moveBug, 12000);
+    const initialTimeout = setTimeout(moveBug, 5000);
+    return () => {
+      clearInterval(interval);
+      clearTimeout(initialTimeout);
+    };
+  }, [pos.x, pos.y]);
+
+  return (
+    <motion.div
+      className="fixed z-[100] pointer-events-none text-red-500/20"
+      initial={{ opacity: 0 }}
+      animate={{ 
+        left: `${pos.x}%`, 
+        top: `${pos.y}%`, 
+        rotate: pos.rotate,
+        opacity: visible ? 1 : 0 
+      }}
+      transition={{ 
+        left: { duration: 10, ease: "linear" },
+        top: { duration: 10, ease: "linear" },
+        rotate: { duration: 1 },
+        opacity: { duration: 2 }
+      }}
+    >
+      <Bug size={12} fill="currentColor" />
+    </motion.div>
   );
 }
 
@@ -161,6 +216,12 @@ export default function App() {
       const scrollY = window.scrollY;
       const windowHeight = window.innerHeight;
 
+      // Force 'home' if at the very top
+      if (scrollY < 100) {
+        setActiveNavLink("home");
+        return;
+      }
+
       // If near the very bottom, activate last section
       if (scrollY + windowHeight >= document.documentElement.scrollHeight - 50) {
         setActiveNavLink("contact");
@@ -172,7 +233,6 @@ export default function App() {
         const el = document.getElementById(id);
         if (el) {
           const rect = el.getBoundingClientRect();
-          // Section is active when its top has scrolled past 30% of viewport height
           if (rect.top <= windowHeight * 0.3) {
             current = id;
           }
@@ -182,7 +242,8 @@ export default function App() {
     };
 
     window.addEventListener("scroll", handleScroll, { passive: true });
-    handleScroll(); // Run once on mount
+    // Use timeout to ensure elements are measured after layout settled
+    setTimeout(handleScroll, 100); 
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
@@ -211,6 +272,7 @@ export default function App() {
   return (
     <div className="min-h-screen bg-background text-on-surface font-body selection:bg-primary/20 pb-20 md:pb-0 overflow-x-hidden">
       <ScrollToTop />
+      <BugHunter />
 
       {/* Navigation — Slim icon sidebar on desktop, bottom bar on mobile/tablet */}
       <motion.nav
@@ -229,7 +291,7 @@ export default function App() {
           <img
             src="/logo/dn-logo.svg"
             alt="DN Logo"
-            className="w-12 h-auto object-contain hover:scale-110 transition-transform duration-300"
+            className="w-14 h-auto object-contain hover:scale-110 transition-transform duration-300"
           />
         </motion.div>
 
@@ -292,17 +354,21 @@ export default function App() {
       {/* Main Content Wrapper */}
       <main className="w-full md:ml-[88px] relative overflow-x-hidden">
         {/* New Hero Section (Home) */}
-        <header ref={heroRef} className="min-h-screen flex items-center px-6 md:px-12 bg-surface overflow-hidden relative" id="home">
+        <header ref={heroRef} className="min-h-screen flex flex-col justify-center px-6 md:px-12 bg-surface overflow-hidden relative" id="home">
+          {/* Mobile Logo Top Bar */}
+          <motion.div 
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="md:hidden absolute top-0 left-0 w-full p-6 z-20 flex justify-between items-center"
+          >
+            <img src="/logo/dn-logo.svg" alt="DN Logo" className="w-16 h-auto" />
+          </motion.div>
+
           <FloatingParticles />
-          <div className="max-w-7xl mx-auto w-full relative z-10">
+          <div className="max-w-7xl mx-auto w-full relative z-10 pt-28 md:pt-0">
             <div className="grid md:grid-cols-2 gap-20 items-center">
               {/* Main Greeting */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8, ease: 'easeOut' }}
-                className="space-y-8"
-              >
+              <motion.div {...fadeIn} className="space-y-8">
                 <div className="space-y-4">
 
                   <h1 className="text-4xl md:text-5xl font-headline font-bold text-on-surface tracking-tight leading-tight">
@@ -337,7 +403,8 @@ export default function App() {
               <motion.div
                 variants={staggerContainer}
                 initial="initial"
-                animate="whileInView"
+                whileInView="whileInView"
+                viewport={{ once: true }}
                 className="grid grid-cols-2 gap-4"
               >
                 {[
@@ -582,7 +649,7 @@ export default function App() {
         {/* Blog Section — with reveal animations */}
         <section className="py-24 px-6 md:px-12 bg-surface relative" id="blog">
           <div className="max-w-7xl mx-auto">
-            <motion.div {...fadeIn} className="flex flex-col md:flex-row justify-between items-end mb-16 gap-8">
+            <motion.div {...fadeIn} className="flex flex-col md:flex-row justify-between items-start md:items-end mb-16 gap-8">
               <div className="space-y-4">
 
                 <h2 className="text-4xl font-headline font-bold text-on-surface">Recent Insights</h2>
